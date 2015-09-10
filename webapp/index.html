@@ -1,1 +1,29 @@
-TODO
+<!doctype html>
+<html lang="ru" ng-app="goImbApp">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My HTML File</title>
+
+  <link href="assets/libs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/libs/bootstrap/dist/css/bootstrap-theme.css" rel="stylesheet">
+
+  <script src="assets/libs/angular/angular.js"></script>
+  <script src="assets/libs/angular-ui-router/release/angular-ui-router.js"></script>
+  <script src="assets/libs/angular-bootstrap/ui-bootstrap.js"></script>
+  <script src="assets/libs/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+  <script src="assets/libs/satellizer/satellizer.min.js"></script>
+  <script src="app/components/loginModal/loginModalService.js"></script>
+  <script src="app/components/loginModal/loginModalController.js"></script>
+  <script src="app/app.module.js"></script>
+  <script src="app/app.route.js"></script>
+</head>
+<body>
+
+  <p>Nothing here {{'yet' + '!'}}</p>
+  <div ui-view></div>
+  <a ui-sref='welcome'>Without Auth</a>
+  <a ui-sref='app.thread'>With Auth</a>
+</body>
+</html>

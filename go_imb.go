@@ -8,6 +8,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 	"github.com/gorilla/mux"
+	"github.com/codegangsta/negroni"
 )
 
 type GoImbConfiguration struct {
@@ -50,9 +51,16 @@ func main() {
 	// setup routes
 	router := mux.NewRouter()
 
-	router.Handle("/", http.RedirectHandler("/webapp/", 302))
-	router.PathPrefix("/webapp/").Handler(http.StripPrefix("/webapp", fileHandler))
-	http.Handle("/", router)
+	router.Handle("/", http.RedirectHandler("/webapp", 302))
+	router.PathPrefix("/webapp").Handler(http.StripPrefix("/webapp", fileHandler))
 
-	http.ListenAndServe(fmt.Sprintf(":%v", configuration.Port), nil);
+	authRouter := router.PathPrefix("/auth").Subrouter()
+	authRouter.HandleFunc("/login", Login).Methods("POST")
+
+	apiRouterBase := mux.NewRouter();
+	router.PathPrefix("/api").Handler(negroni.New(JWTMiddleware(), negroni.Wrap(apiRouterBase)))
+	apiRouter := apiRouterBase.PathPrefix("/api").Subrouter()
+	apiRouter.HandleFunc("/me", Me).Methods("GET")
+
+	http.ListenAndServe(fmt.Sprintf(":%v", configuration.Port), router);
 }
