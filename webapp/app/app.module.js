@@ -41,12 +41,19 @@ goImbApp.config(['$httpProvider', function ($httpProvider) {
 }]);
 
 
-goImbApp.run(['$rootScope', '$state', 'loginModalService', function($rootScope, $state, loginModalService) {
+goImbApp.run(['$rootScope', '$state', '$auth', 'loginModalService', function($rootScope, $state, $auth, loginModalService) {
+  $rootScope.logout = function() {
+    $auth.logout();
+    console.log('lolo');
+    $rootScope.currentUser = null;
+    $state.go('welcome');
+  }
 
   $rootScope.$on('$stateChangeStart', function (event, toState, toParams) {
     var requireLogin = toState.data.requireLogin;
 
-    if (requireLogin && typeof $rootScope.currentUser === 'undefined') {
+    if (requireLogin && ((typeof $rootScope.currentUser === 'undefined') 
+      || (null == $rootScope.currentUser))) {
       event.preventDefault();
 
       loginModalService()

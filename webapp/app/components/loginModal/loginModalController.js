@@ -1,6 +1,6 @@
-var loginModalController = angular.module('loginModalController', []);
+var loginModalController = angular.module('loginModalController', ['satellizer']);
 
-loginModalController.controller('loginModalController', ['$scope', '$auth',  function ($scope, $auth) {
+loginModalController.controller('loginModalController', ['$scope', '$auth', '$http',  function ($scope, $auth, $http) {
 
   this.cancel = $scope.$dismiss;
 
@@ -10,10 +10,15 @@ loginModalController.controller('loginModalController', ['$scope', '$auth',  fun
       'password': password
     };
     return $auth.login(credentials).then(function(data) {
-      $scope.$close(data);
+      return $http({ method: 'GET', url: '/api/me' });
+    }).then(function(data) {
+      if (200 == data.status) {
+        $scope.$close(data.data);
+      } else {
+        $scope.$dismiss();  
+      }
     }).catch(function() {
-    	$scope.$dismiss()
+    	$scope.$dismiss();
     });
   };
-
 }]);

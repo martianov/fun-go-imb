@@ -10,6 +10,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/context"
+	"gopkg.in/mgo.v2"
 )
 
 type Error struct {
@@ -89,4 +90,13 @@ func GetToken(w http.ResponseWriter, r *http.Request) *TokenData {
 func IsTokenSet(r *http.Request) bool {
 	_, ok := context.GetOk(r, "token")
 	return ok
+}
+
+func GetDB(w http.ResponseWriter, r *http.Request) *mgo.Database {
+	db, ok := context.GetOk(r, "DB")
+	if !ok {
+		ISR(w, r, errors.New("Couldn't obtain DB"))
+		return nil
+	}
+	return db.(*mgo.Database)
 }

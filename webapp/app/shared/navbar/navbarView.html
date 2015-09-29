@@ -1,0 +1,20 @@
+<div class="container">
+    <nav class="navbar navbar-default">
+    	<div class="navbar-brand">Go-Imb</div>
+    	<div id="navbar" class="navbar-collapse collapse">
+	    	<ul class="nav navbar-nav navbar-right">
+				<li dropdown on-toggle="toggled(open)">
+			      <a href id="simple-dropdown" dropdown-toggle>
+			        {{currentUser.displayName}}<span class="caret">
+			      </a>
+
+	                <ul class="dropdown-menu">
+	                  <li role="separator" class="divider"></li>
+	                  <li role="menuitem"><a href="" ng-click="logout()">Logout</a></li>
+	                </ul>
+	            </li>
+	        </ul>
+	    </div>
+    </nav>
+    <ui-view/>
+</div>

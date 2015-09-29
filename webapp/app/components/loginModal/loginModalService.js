@@ -2,7 +2,7 @@ var loginModalService = angular.module('loginModalService', ['ui.bootstrap', 'lo
 
 loginModalService.service('loginModalService', ['$modal', '$rootScope', function ($modal, $rootScope) {
 
-  function assignCurrentUser (user) {
+  function assignCurrentUser(user) {
     $rootScope.currentUser = user;
     return user;
   }

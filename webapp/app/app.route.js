@@ -12,7 +12,7 @@ goImbApp.config(function ($stateProvider, $urlRouterProvider, $authProvider) {
     .state('app', {
       abstract: true,
       url: '/app',
-      template: '<ui-view/>',
+      templateUrl: 'app/shared/navbar/navbarView.html',
       data: {
         requireLogin: true
       }

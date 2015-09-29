@@ -27,16 +27,6 @@ func init() {
 	}
 }
 
-type User struct {
-	ID string
-	Email string
-	Password string
-}
-
-var (
-	root = User{ID: "imroot", Email: "e@e.e", Password: "eee"}
-)
-
 func Login(w http.ResponseWriter, r *http.Request) {
 	type UserData struct {
 		Email    string `json:"email"`
@@ -56,17 +46,20 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if userData.Email != root.Email || userData.Password != root.Password {
+	db := GetDB(w, r)
+
+	user, errM := AuthUser(db, userData.Email, userData.Password)
+	if errM != nil {
 		BR(w, r, errors.New("Bad credentials"), http.StatusUnauthorized)
 		return
 	} else {
-		SetToken(w, r, &root)
+		SetToken(w, r, user)
 	}
 }
 
 func SetToken(w http.ResponseWriter, r *http.Request, user *User) {
 	t := jwt.New(jwt.GetSigningMethod("RS256"))
-	t.Claims["ID"] = user.ID
+	t.Claims["ID"] = user.ID.Hex()
 	t.Claims["iat"] = time.Now().Unix()
 	t.Claims["exp"] = time.Now().Add(time.Minute * 60 * 24 * 14).Unix()
 	tokenString, err := t.SignedString(signKey)

@@ -14,6 +14,8 @@ import (
 type GoImbConfiguration struct {
 		Port int
 		Webapp string
+		MongodbUrl string
+		MongodbDatabaseName string
 }
 
 func readConfiguration() GoImbConfiguration {
@@ -37,12 +39,10 @@ func readConfiguration() GoImbConfiguration {
     return configuration
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
-}
-
 func main() {
 	configuration := readConfiguration()
+	dbSession := DBConnect(configuration.MongodbUrl)
+	DBEnsureIndicesAndDefaults(dbSession, configuration.MongodbDatabaseName)
 
 	// handle all requests by serving a file of the same name
 	fs := http.Dir(configuration.Webapp)
@@ -51,14 +51,16 @@ func main() {
 	// setup routes
 	router := mux.NewRouter()
 
-	router.Handle("/", http.RedirectHandler("/webapp", 302))
+	router.Handle("/", http.RedirectHandler("/webapp/index.html", 302))
 	router.PathPrefix("/webapp").Handler(http.StripPrefix("/webapp", fileHandler))
 
-	authRouter := router.PathPrefix("/auth").Subrouter()
+	authRouterBase := mux.NewRouter();
+	router.PathPrefix("/auth").Handler(negroni.New(DBMiddleware(dbSession, configuration.MongodbDatabaseName), negroni.Wrap(authRouterBase)))
+	authRouter := authRouterBase.PathPrefix("/auth").Subrouter()
 	authRouter.HandleFunc("/login", Login).Methods("POST")
 
 	apiRouterBase := mux.NewRouter();
-	router.PathPrefix("/api").Handler(negroni.New(JWTMiddleware(), negroni.Wrap(apiRouterBase)))
+	router.PathPrefix("/api").Handler(negroni.New(DBMiddleware(dbSession, configuration.MongodbDatabaseName), JWTMiddleware(), negroni.Wrap(apiRouterBase)))
 	apiRouter := apiRouterBase.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/me", Me).Methods("GET")
 
